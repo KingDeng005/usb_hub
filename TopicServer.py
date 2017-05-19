@@ -7,6 +7,7 @@ import brainstem
 import numpy as np
 import time
 
+# initialize brainstem module and connect to the device
 spec = brainstem.discover.findFirstModule(brainstem.link.Spec.USB)
 stem = brainstem.stem.USBStem()
 stem.connect(0xD80C7D63)
@@ -39,15 +40,24 @@ def err_handling(req):
 	port = camera_num.index(req.serial_num)
 	usb.setPortDisable(port)	
 	a = usb.setPortEnable(port)
+	try_num = 5   # try 5 times to ensure enabling
+	while a is not 0 and try_num >0:
+		rospy.loginfo('usb_hub node: unable to enable the port...try again...')
+		a = usb.setPortEnable(port)
+		time.sleep(0.5)
+		try_num -= 1	
 	if a is 0:
-		res = "Device(serial number:%s) has been successfully enabled"%req.serial_num
+		res_msg = "Device(serial number:%s) has been successfully enabled"%req.serial_num
+		rospy.loginfo(res_msg) 
+		res = req.serial_num + " 0"   # example return: 16369133 0 - enabling success	
 		return err_stringResponse(res)
 	else:	
-		res = "Device(serial number:%s) enabling failed"%req.serial_num
+		res_msg = "Device(serial number:%s) enabling failed"%req.serial_num
+		rospy.logerr(res_msg)
+		res = req.serial_num + " 1"  # example return: 16369133 1 - enabling fail
 		return err_stringResponse(res)
 
 def start_server():
-	print 'here'
 	rospy.init_node('usb_hub')
 	s = rospy.Service('usb_hub_server', err_string, err_handling)
 	rospy.spin()
