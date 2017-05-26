@@ -29,6 +29,6 @@ a = usb.setPortDisable(2)
 print a
 print "wait for a while .. "
 time.sleep(3)
-sn = "16369133"
+sn = "16369132"
 print "serial number is: %s"%sn
 print "The result is: %s "%(start_client(sn))
