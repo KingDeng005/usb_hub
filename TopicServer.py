@@ -57,19 +57,19 @@ def usb_hub_terminate(usb, stem):
 
 def err_handling(req):
 	index = find_hub_and_port(req.serial_num)
-	hub = index[0]
-	port = index[1]
 	if not isinstance(index, list):
 		rospy.logerr('the serial number doesn\'t exist')
 		res = req.serial_num + " 1"
 		return err_stringResponse(res)
-	# initialize the usb hub and get the usb instance
+	# initialize the usb hub and get the usb instance 	
+	hub = index[0]
+	port = index[1]
 	[usb,stem] = usb_hub_init(index[0])
 	usb.setPortDisable(index[1])	
 	a = usb.setPortEnable(index[1])
 	try_num = 5   # try 5 times to ensure enabling
 	while a is not 0 and try_num > 0:
-		rospy.logwarning('usb_hub node: unable to enable the port...try again...')
+		rospy.logwarn('usb_hub node: unable to enable the port...try again...')
 		a = usb.setPortEnable(port)
 		time.sleep(0.2)
 		try_num -= 1
