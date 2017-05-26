@@ -45,18 +45,26 @@ def usb_hub_init(hub_serial):
 	stem = brainstem.stem.USBStem()
 	res = stem.connect(hub_serial)
 	if res is not 0:
-		rospy.logerror("hub connection failed...")
+		rospy.logerr("hub connection failed...")
+	else:
+		rospy.loginfo("hub connection successful...")
 	usb = brainstem.stem.USB(stem, 0)
-	return usb
+	return [usb, stem]
+
+def usb_hub_terminate(usb, stem):
+	stem.disconnect()
+	usb = None
 
 def err_handling(req):
 	index = find_hub_and_port(req.serial_num)
+	hub = index[0]
+	port = index[1]
 	if not isinstance(index, list):
 		rospy.logerr('the serial number doesn\'t exist')
 		res = req.serial_num + " 1"
 		return err_stringResponse(res)
 	# initialize the usb hub and get the usb instance
-	usb = usb_hub_init(index[0])
+	[usb,stem] = usb_hub_init(index[0])
 	usb.setPortDisable(index[1])	
 	a = usb.setPortEnable(index[1])
 	try_num = 5   # try 5 times to ensure enabling
@@ -65,6 +73,7 @@ def err_handling(req):
 		a = usb.setPortEnable(port)
 		time.sleep(0.2)
 		try_num -= 1
+	usb_hub_terminate(usb, stem)
 	# see the enabling result
 	if a is 0:
 		res_msg = "Device(serial number:%s) has been successfully enabled"%req.serial_num
