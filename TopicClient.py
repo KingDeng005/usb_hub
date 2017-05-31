@@ -20,15 +20,16 @@ def usage():
 
 spec = brainstem.discover.findFirstModule(brainstem.link.Spec.USB)
 stem = brainstem.stem.USBStem()
-stem.connect(0xD80C7D63)
-usb = brainstem.stem.USB(stem, 1)
+stem.connect(2024660162)
+usb = brainstem.stem.USB(stem, 0)
 
 print "ready to shutdown .. "
 time.sleep(3)
-a = usb.setPortDisable(2)
+a = usb.setPortDisable(1)
+stem.disconnect()
 print a
 print "wait for a while .. "
 time.sleep(3)
-sn = "16369133"
+sn = "16456118"
 print "serial number is: %s"%sn
 print "The result is: %s "%(start_client(sn))

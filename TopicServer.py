@@ -8,26 +8,26 @@ import numpy as np
 import time
 
 # serial number mapped to port number - 2 usb hubs
-hub1_camera = ["0x00000001",\
-	      	"0x00000002",\
-	      	"16369133",\
-              	"0x00000004",\
-              	"0x00000005",\
-              	"0x00000006",\
-              	"0x00000007",\
-	      	"0x00000008"]
-hub2_camera = ["0x00000001",\
-	      	"0x00000002",\
-	      	"16369133",\
-              	"0x00000004",\
-              	"0x00000005",\
+hub1_camera = ["16398896",\
+	      	"16456113",\
+	      	"16455921",\
+              	"16456119",\
+              	"16456117",\
+              	"0x0000000",\
+              	"0x0000000",\
+	      	"0x0000000"]
+hub2_camera = ["16456116",\
+	      	"16456118",\
+	      	"16455958",\
+              	"16455959",\
+              	"16456114",\
               	"0x00000006",\
               	"0x00000007",\
 	      	"0x00000008"]
 hub_camera = []
+hub_camera.append(hub2_camera)
 hub_camera.append(hub1_camera)
-hub_camera.append(hub1_camera)
-usb_hub_list = [0xD80C7D63, 0x0000000]  # decide later
+usb_hub_list = [0x78ADDCC2, 0xD80C7D63]  # decide later
 
 def find_hub_and_port(camera_serial):
 	err_cnt = 0
@@ -41,13 +41,14 @@ def find_hub_and_port(camera_serial):
 
 def usb_hub_init(hub_serial):
 	# initialize brainstem module and connect to the device
+	#rospy.logwarn(hub_serial)
 	spec = brainstem.discover.findFirstModule(brainstem.link.Spec.USB)
 	stem = brainstem.stem.USBStem()
 	res = stem.connect(hub_serial)
 	if res is not 0:
 		rospy.logerr("hub connection failed...")
 	else:
-		rospy.loginfo("hub connection successful...")
+		rospy.logwarn("hub connection successful...")
 	usb = brainstem.stem.USB(stem, 0)
 	return [usb, stem]
 
@@ -61,12 +62,12 @@ def err_handling(req):
 		rospy.logerr('the serial number doesn\'t exist')
 		res = req.serial_num + " 1"
 		return err_stringResponse(res)
-	# initialize the usb hub and get the usb instance 	
+	# initialize the usb hub and get the usb instance
 	hub = index[0]
-	port = index[1]
-	[usb,stem] = usb_hub_init(index[0])
-	usb.setPortDisable(index[1])	
-	a = usb.setPortEnable(index[1])
+	port = index[1] 	
+	[usb,stem] = usb_hub_init(usb_hub_list[hub])
+	usb.setPortDisable(port)	
+	a = usb.setPortEnable(port)
 	try_num = 5   # try 5 times to ensure enabling
 	while a is not 0 and try_num > 0:
 		rospy.logwarn('usb_hub node: unable to enable the port...try again...')
