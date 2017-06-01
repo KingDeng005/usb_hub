@@ -2,9 +2,11 @@
 
 import sys
 import rospy
-from usb_hub_server.srv import *
+#from usb_hub_server.srv import *
 import time
 import brainstem
+import rosservice
+from std_msgs.msg import String
 
 def start_client(sn):
 	rospy.wait_for_service('usb_hub_server')
@@ -18,6 +20,7 @@ def start_client(sn):
 def usage():
 	return "%s [x, y]"%sys.argv[0]
 
+
 spec = brainstem.discover.findFirstModule(brainstem.link.Spec.USB)
 stem = brainstem.stem.USBStem()
 stem.connect(2024660162)
@@ -30,6 +33,7 @@ stem.disconnect()
 print a
 print "wait for a while .. "
 time.sleep(3)
-sn = "16456118"
+sn = str(16456118)
 print "serial number is: %s"%sn
-print "The result is: %s "%(start_client(sn))
+print type(rosservice.call_service('/usb_hub_server',[sn])[1])
+print "The result is: %s "%(rosservice.call_service('/usb_hub_server',[sn])[1].reset_msg)

@@ -95,5 +95,5 @@ class usb_hub:
 				return (i, port)
 			except:
 				continue
-		return -1
+		return None
 
